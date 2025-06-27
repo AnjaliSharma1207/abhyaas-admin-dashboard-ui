@@ -12,8 +12,9 @@ import {
   Alert,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { useDispatch } from 'react-redux';
-import { loginStart, loginSuccess } from '../../store/slices/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { loginStart, loginSuccess, loginFailure } from '../../store/slices/authSlice';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -22,8 +23,9 @@ const Login = () => {
     rememberMe: false,
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { loading, error } = useSelector((state) => state.auth);
 
   const handleChange = (e) => {
     const { name, value, checked } = e.target;
@@ -36,19 +38,31 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
-      setError('Please fill in all fields');
+      dispatch(loginFailure('Please fill in all fields'));
       return;
     }
     
     dispatch(loginStart());
-    // Simulate login success
+    
+    // Simulate login API call
     setTimeout(() => {
-      dispatch(loginSuccess({
+      const userData = {
         id: 1,
         name: 'Admin User',
         email: formData.email,
         role: 'admin',
-      }));
+      };
+      
+      const authToken = 'dummy-auth-token-' + Date.now();
+      
+      // Store in localStorage if remember me is checked
+      if (formData.rememberMe) {
+        localStorage.setItem('authToken', authToken);
+        localStorage.setItem('user', JSON.stringify(userData));
+      }
+      
+      dispatch(loginSuccess(userData));
+      navigate('/admin/dashboard');
     }, 1000);
   };
 
@@ -75,6 +89,7 @@ const Login = () => {
         autoFocus
         value={formData.email}
         onChange={handleChange}
+        error={error && !formData.email}
       />
       
       <TextField
@@ -88,6 +103,7 @@ const Login = () => {
         autoComplete="current-password"
         value={formData.password}
         onChange={handleChange}
+        error={error && !formData.password}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -119,9 +135,10 @@ const Login = () => {
         type="submit"
         fullWidth
         variant="contained"
+        disabled={loading}
         sx={{ mt: 3, mb: 2, py: 1.5 }}
       >
-        Sign In
+        {loading ? 'Signing In...' : 'Sign In'}
       </Button>
     </Box>
   );

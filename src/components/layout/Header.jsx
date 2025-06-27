@@ -18,9 +18,13 @@ import {
   Logout,
 } from '@mui/icons-material';
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../../store/slices/authSlice';
 
 const Header = ({ onMenuClick }) => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -28,6 +32,15 @@ const Header = ({ onMenuClick }) => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    // Clear localStorage
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    // Dispatch logout action
+    dispatch(logout());
+    handleClose();
   };
 
   return (
@@ -75,7 +88,9 @@ const Header = ({ onMenuClick }) => {
             onClick={handleMenu}
             color="inherit"
           >
-            <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>A</Avatar>
+            <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>
+              {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
+            </Avatar>
           </IconButton>
           
           <Menu
@@ -103,7 +118,7 @@ const Header = ({ onMenuClick }) => {
               <AccountCircle sx={{ mr: 1 }} />
               Profile
             </MenuItem>
-            <MenuItem onClick={handleClose}>
+            <MenuItem onClick={handleLogout}>
               <Logout sx={{ mr: 1 }} />
               Logout
             </MenuItem>
