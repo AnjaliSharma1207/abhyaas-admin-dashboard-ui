@@ -13,6 +13,7 @@ import {
   ListItemIcon,
   Chip,
   useTheme,
+  Container,
 } from '@mui/material';
 import {
   People,
@@ -49,7 +50,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <Box>
+    <Container maxWidth={false} disableGutters>
       <Typography variant="h4" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
         Admin Dashboard
       </Typography>
@@ -69,15 +70,15 @@ const Dashboard = () => {
                 }
               }}
             >
-              <CardContent sx={{ p: 3 }}>
+              <CardContent sx={{ p: theme.spacing(3) }}>
                 <Box display="flex" alignItems="center">
                   <Box
                     sx={{
-                      p: 2,
+                      p: theme.spacing(2),
                       borderRadius: 2,
                       backgroundColor: stat.color,
                       color: 'white',
-                      mr: 2,
+                      mr: theme.spacing(2),
                       boxShadow: theme.shadows[3],
                     }}
                   >
@@ -101,7 +102,7 @@ const Dashboard = () => {
         <Grid item xs={12} md={8}>
           <Paper 
             sx={{ 
-              p: 3, 
+              p: theme.spacing(3), 
               height: '100%',
               transition: 'box-shadow 0.3s ease',
               '&:hover': {
@@ -109,7 +110,7 @@ const Dashboard = () => {
               }
             }}
           >
-            <Typography variant="h6" gutterBottom sx={{ mb: 2, fontWeight: 600 }}>
+            <Typography variant="h5" gutterBottom sx={{ mb: theme.spacing(2), fontWeight: 600 }}>
               Recent Activities
             </Typography>
             <List>
@@ -158,7 +159,7 @@ const Dashboard = () => {
         <Grid item xs={12} md={4}>
           <Paper 
             sx={{ 
-              p: 3, 
+              p: theme.spacing(3), 
               height: '100%',
               transition: 'box-shadow 0.3s ease',
               '&:hover': {
@@ -166,30 +167,31 @@ const Dashboard = () => {
               }
             }}
           >
-            <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
+            <Typography variant="h5" gutterBottom sx={{ mb: theme.spacing(3), fontWeight: 600 }}>
               Quick Stats
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: theme.spacing(2) }}>
               {quickStats.map((stat, index) => (
                 <Box 
                   key={index}
                   sx={{
                     display: 'flex', 
                     justifyContent: 'space-between',
-                    p: 2,
+                    p: theme.spacing(2),
                     borderRadius: 1,
                     backgroundColor: 'background.default',
                     transition: 'all 0.2s ease',
                     '&:hover': {
                       backgroundColor: 'action.hover',
                       transform: 'scale(1.02)',
+                      boxShadow: theme.shadows[2],
                     }
                   }}
                 >
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="subtitle2" color="text.secondary">
                     {stat.label}
                   </Typography>
-                  <Typography variant="body2" fontWeight="bold" color="primary.main">
+                  <Typography variant="subtitle2" fontWeight="bold" color="primary.main">
                     {stat.value}
                   </Typography>
                 </Box>
@@ -198,7 +200,7 @@ const Dashboard = () => {
           </Paper>
         </Grid>
       </Grid>
-    </Box>
+    </Container>
   );
 };
 

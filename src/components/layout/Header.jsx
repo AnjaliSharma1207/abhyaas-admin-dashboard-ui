@@ -35,7 +35,7 @@ const Header = ({ onMenuClick }) => {
       position="fixed"
       sx={{
         zIndex: (theme) => theme.zIndex.drawer + 1,
-        boxShadow: (theme) => theme.shadows[2],
+        boxShadow: (theme) => theme.shadows[1],
       }}
     >
       <Toolbar>
@@ -44,13 +44,7 @@ const Header = ({ onMenuClick }) => {
           color="inherit"
           aria-label="menu"
           onClick={onMenuClick}
-          sx={{ 
-            mr: 2,
-            transition: 'transform 0.2s ease',
-            '&:hover': {
-              transform: 'scale(1.1)',
-            }
-          }}
+          sx={{ mr: 2 }}
         >
           <MenuIcon />
         </IconButton>
@@ -61,22 +55,13 @@ const Header = ({ onMenuClick }) => {
           sx={{ 
             flexGrow: 1,
             fontWeight: 600,
-            letterSpacing: '0.5px'
           }}
         >
           Abhyaas - Training Management
         </Typography>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <IconButton 
-            color="inherit"
-            sx={{
-              transition: 'transform 0.2s ease',
-              '&:hover': {
-                transform: 'scale(1.1)',
-              }
-            }}
-          >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <IconButton color="inherit">
             <Badge badgeContent={4} color="error">
               <Notifications />
             </Badge>
@@ -89,12 +74,6 @@ const Header = ({ onMenuClick }) => {
             aria-haspopup="true"
             onClick={handleMenu}
             color="inherit"
-            sx={{
-              transition: 'transform 0.2s ease',
-              '&:hover': {
-                transform: 'scale(1.05)',
-              }
-            }}
           >
             <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>A</Avatar>
           </IconButton>
@@ -115,32 +94,16 @@ const Header = ({ onMenuClick }) => {
             onClose={handleClose}
             sx={{
               '& .MuiPaper-root': {
-                boxShadow: (theme) => theme.shadows[8],
+                boxShadow: (theme) => theme.shadows[4],
                 mt: 1,
               }
             }}
           >
-            <MenuItem 
-              onClick={handleClose}
-              sx={{
-                transition: 'background-color 0.2s ease',
-                '&:hover': {
-                  backgroundColor: 'action.hover',
-                }
-              }}
-            >
+            <MenuItem onClick={handleClose}>
               <AccountCircle sx={{ mr: 1 }} />
               Profile
             </MenuItem>
-            <MenuItem 
-              onClick={handleClose}
-              sx={{
-                transition: 'background-color 0.2s ease',
-                '&:hover': {
-                  backgroundColor: 'action.hover',
-                }
-              }}
-            >
+            <MenuItem onClick={handleClose}>
               <Logout sx={{ mr: 1 }} />
               Logout
             </MenuItem>

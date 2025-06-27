@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Box, useMediaQuery, useTheme, Container } from '@mui/material';
+import { Box, useMediaQuery, useTheme } from '@mui/material';
 import Sidebar from '../components/layout/Sidebar';
 import Header from '../components/layout/Header';
 
-const DRAWER_WIDTH = 280;
+const DRAWER_WIDTH = 260;
 
 const MainLayout = () => {
   const theme = useTheme();
@@ -32,7 +32,7 @@ const MainLayout = () => {
           display: 'flex',
           flexDirection: 'column',
           minHeight: '100vh',
-          marginTop: '64px', // AppBar height
+          marginTop: '64px',
           marginLeft: { 
             xs: 0, 
             md: sidebarOpen ? `${DRAWER_WIDTH}px` : 0 
@@ -41,21 +41,18 @@ const MainLayout = () => {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
+          backgroundColor: theme.palette.background.default,
         }}
       >
-        <Container 
-          maxWidth={false}
-          sx={{ 
-            flexGrow: 1,
-            py: 3,
-            px: { xs: 2, sm: 3 },
-            maxWidth: '1200px',
-            margin: '0 auto',
-            width: '100%'
-          }}
-        >
+        <Box sx={{ 
+          flexGrow: 1,
+          p: 3,
+          maxWidth: '1400px',
+          width: '100%',
+          mx: 'auto'
+        }}>
           <Outlet />
-        </Container>
+        </Box>
       </Box>
     </Box>
   );
