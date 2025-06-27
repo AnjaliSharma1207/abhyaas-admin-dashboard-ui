@@ -10,6 +10,7 @@ import {
   Typography,
   Box,
   Collapse,
+  useTheme,
 } from '@mui/material';
 import {
   Dashboard,
@@ -23,12 +24,9 @@ import {
   ExpandLess,
   ExpandMore,
   RequestPage,
-  CalendarToday,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
-
-const drawerWidth = 280;
 
 const menuItems = [
   {
@@ -59,7 +57,8 @@ const menuItems = [
   },
 ];
 
-const Sidebar = ({ open, onClose, variant }) => {
+const Sidebar = ({ open, onClose, variant, drawerWidth = 280 }) => {
+  const theme = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [expandedSections, setExpandedSections] = useState({
@@ -83,29 +82,39 @@ const Sidebar = ({ open, onClose, variant }) => {
   };
 
   const drawer = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ p: 2, mt: 8 }}>
-        <Typography variant="h6" color="primary" fontWeight="bold">
+    <Box sx={{ 
+      height: '100%', 
+      display: 'flex', 
+      flexDirection: 'column',
+      backgroundColor: 'background.paper'
+    }}>
+      <Box sx={{ 
+        p: 3, 
+        borderBottom: `1px solid ${theme.palette.divider}`,
+        backgroundColor: 'primary.main',
+        color: 'primary.contrastText'
+      }}>
+        <Typography variant="h5" fontWeight="bold">
           Abhyaas
         </Typography>
-        <Typography variant="caption" color="text.secondary">
-          Admin Dashboard
+        <Typography variant="body2" sx={{ opacity: 0.8 }}>
+          Training Management
         </Typography>
       </Box>
       
-      <Divider />
-      
-      <List sx={{ flexGrow: 1, pt: 1 }}>
+      <Box sx={{ flexGrow: 1, overflow: 'auto', py: 1 }}>
         {menuItems.map((section) => (
-          <Box key={section.title}>
+          <Box key={section.title} sx={{ mb: 1 }}>
             <ListItem 
               button 
               onClick={() => handleSectionToggle(section.title)}
               sx={{ 
-                backgroundColor: 'rgba(25, 118, 210, 0.04)',
-                mb: 1,
                 mx: 1,
                 borderRadius: 1,
+                backgroundColor: 'action.hover',
+                '&:hover': {
+                  backgroundColor: 'action.selected',
+                }
               }}
             >
               <ListItemText 
@@ -132,15 +141,22 @@ const Sidebar = ({ open, onClose, variant }) => {
                       mx: 1,
                       borderRadius: 1,
                       mb: 0.5,
+                      transition: 'all 0.2s ease',
                       '&.Mui-selected': {
-                        backgroundColor: 'primary.light',
-                        color: 'white',
+                        backgroundColor: 'primary.main',
+                        color: 'primary.contrastText',
+                        boxShadow: theme.shadows[2],
+                        '&:hover': {
+                          backgroundColor: 'primary.dark',
+                        },
                         '& .MuiListItemIcon-root': {
-                          color: 'white',
+                          color: 'primary.contrastText',
                         },
                       },
                       '&:hover': {
-                        backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                        backgroundColor: 'action.hover',
+                        boxShadow: theme.shadows[1],
+                        transform: 'translateX(4px)',
                       },
                     }}
                   >
@@ -159,7 +175,7 @@ const Sidebar = ({ open, onClose, variant }) => {
             </Collapse>
           </Box>
         ))}
-      </List>
+      </Box>
     </Box>
   );
 
@@ -174,6 +190,8 @@ const Sidebar = ({ open, onClose, variant }) => {
         '& .MuiDrawer-paper': {
           width: drawerWidth,
           boxSizing: 'border-box',
+          borderRight: `1px solid ${theme.palette.divider}`,
+          boxShadow: variant === 'persistent' ? theme.shadows[3] : 'none',
         },
       }}
     >

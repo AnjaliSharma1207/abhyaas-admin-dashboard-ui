@@ -12,6 +12,7 @@ import {
   ListItemText,
   ListItemIcon,
   Chip,
+  useTheme,
 } from '@mui/material';
 import {
   People,
@@ -24,11 +25,13 @@ import {
 } from '@mui/icons-material';
 
 const Dashboard = () => {
+  const theme = useTheme();
+  
   const stats = [
-    { title: 'Total Users', value: '1,234', icon: <People />, color: '#1976d2' },
-    { title: 'Active Courses', value: '45', icon: <School />, color: '#2e7d32' },
-    { title: 'Training Requests', value: '128', icon: <Assignment />, color: '#ed6c02' },
-    { title: 'Completion Rate', value: '87%', icon: <TrendingUp />, color: '#9c27b0' },
+    { title: 'Total Users', value: '1,234', icon: <People />, color: theme.palette.primary.main },
+    { title: 'Active Courses', value: '45', icon: <School />, color: theme.palette.success.main },
+    { title: 'Training Requests', value: '128', icon: <Assignment />, color: theme.palette.warning.main },
+    { title: 'Completion Rate', value: '87%', icon: <TrendingUp />, color: theme.palette.info.main },
   ];
 
   const recentActivities = [
@@ -38,9 +41,16 @@ const Dashboard = () => {
     { text: 'Training request: Python for Beginners', time: '2 days ago', status: 'pending' },
   ];
 
+  const quickStats = [
+    { label: 'Pending Requests', value: '23' },
+    { label: 'Active Trainers', value: '15' },
+    { label: 'This Month\'s Trainings', value: '34' },
+    { label: 'User Satisfaction', value: '4.8/5' },
+  ];
+
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
         Admin Dashboard
       </Typography>
       
@@ -48,22 +58,33 @@ const Dashboard = () => {
         {/* Stats Cards */}
         {stats.map((stat, index) => (
           <Grid item xs={12} sm={6} md={3} key={index}>
-            <Card>
-              <CardContent>
+            <Card 
+              sx={{ 
+                height: '100%',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: theme.shadows[8],
+                }
+              }}
+            >
+              <CardContent sx={{ p: 3 }}>
                 <Box display="flex" alignItems="center">
                   <Box
                     sx={{
-                      p: 1,
-                      borderRadius: 1,
+                      p: 2,
+                      borderRadius: 2,
                       backgroundColor: stat.color,
                       color: 'white',
                       mr: 2,
+                      boxShadow: theme.shadows[3],
                     }}
                   >
                     {stat.icon}
                   </Box>
                   <Box>
-                    <Typography variant="h5" fontWeight="bold">
+                    <Typography variant="h4" fontWeight="bold" color="text.primary">
                       {stat.value}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
@@ -78,13 +99,34 @@ const Dashboard = () => {
 
         {/* Recent Activities */}
         <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
+          <Paper 
+            sx={{ 
+              p: 3, 
+              height: '100%',
+              transition: 'box-shadow 0.3s ease',
+              '&:hover': {
+                boxShadow: theme.shadows[4],
+              }
+            }}
+          >
+            <Typography variant="h6" gutterBottom sx={{ mb: 2, fontWeight: 600 }}>
               Recent Activities
             </Typography>
             <List>
               {recentActivities.map((activity, index) => (
-                <ListItem key={index} divider>
+                <ListItem 
+                  key={index} 
+                  divider
+                  sx={{
+                    borderRadius: 1,
+                    mb: 1,
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      backgroundColor: 'action.hover',
+                      transform: 'translateX(8px)',
+                    }
+                  }}
+                >
                   <ListItemIcon>
                     {activity.status === 'completed' && <CheckCircle color="success" />}
                     {activity.status === 'pending' && <Pending color="warning" />}
@@ -94,6 +136,7 @@ const Dashboard = () => {
                   <ListItemText
                     primary={activity.text}
                     secondary={activity.time}
+                    primaryTypographyProps={{ fontWeight: 500 }}
                   />
                   <Chip
                     label={activity.status}
@@ -103,6 +146,7 @@ const Dashboard = () => {
                       activity.status === 'pending' ? 'warning' :
                       activity.status === 'new' ? 'primary' : 'info'
                     }
+                    sx={{ ml: 1 }}
                   />
                 </ListItem>
               ))}
@@ -110,29 +154,46 @@ const Dashboard = () => {
           </Paper>
         </Grid>
 
-        {/* Quick Actions */}
+        {/* Quick Stats */}
         <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
+          <Paper 
+            sx={{ 
+              p: 3, 
+              height: '100%',
+              transition: 'box-shadow 0.3s ease',
+              '&:hover': {
+                boxShadow: theme.shadows[4],
+              }
+            }}
+          >
+            <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
               Quick Stats
             </Typography>
-            <Box sx={{ mt: 2 }}>
-              <Box display="flex" justifyContent="space-between" mb={2}>
-                <Typography variant="body2">Pending Requests</Typography>
-                <Typography variant="body2" fontWeight="bold">23</Typography>
-              </Box>
-              <Box display="flex" justifyContent="space-between" mb={2}>
-                <Typography variant="body2">Active Trainers</Typography>
-                <Typography variant="body2" fontWeight="bold">15</Typography>
-              </Box>
-              <Box display="flex" justifyContent="space-between" mb={2}>
-                <Typography variant="body2">This Month's Trainings</Typography>
-                <Typography variant="body2" fontWeight="bold">34</Typography>
-              </Box>
-              <Box display="flex" justifyContent="space-between">
-                <Typography variant="body2">User Satisfaction</Typography>
-                <Typography variant="body2" fontWeight="bold">4.8/5</Typography>
-              </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {quickStats.map((stat, index) => (
+                <Box 
+                  key={index}
+                  sx={{
+                    display: 'flex', 
+                    justifyContent: 'space-between',
+                    p: 2,
+                    borderRadius: 1,
+                    backgroundColor: 'background.default',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      backgroundColor: 'action.hover',
+                      transform: 'scale(1.02)',
+                    }
+                  }}
+                >
+                  <Typography variant="body2" color="text.secondary">
+                    {stat.label}
+                  </Typography>
+                  <Typography variant="body2" fontWeight="bold" color="primary.main">
+                    {stat.value}
+                  </Typography>
+                </Box>
+              ))}
             </Box>
           </Paper>
         </Grid>
