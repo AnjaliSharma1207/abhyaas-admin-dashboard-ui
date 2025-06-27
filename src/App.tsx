@@ -22,7 +22,7 @@ import SubmitRequest from './pages/employee/SubmitRequest';
 import InviteTrainer from './pages/lnd/InviteTrainer';
 
 const AppContent = () => {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated } = useSelector((state: any) => state.auth);
   
   return (
     <Router>
