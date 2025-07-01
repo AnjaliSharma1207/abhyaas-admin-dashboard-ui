@@ -1,131 +1,78 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  AppBar,
-  Toolbar,
+  Box,
   Typography,
   IconButton,
-  Avatar,
-  Menu,
-  MenuItem,
-  Box,
-  Badge,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
-import {
-  Menu as MenuIcon,
-  Notifications,
-  AccountCircle,
-  Logout,
-} from '@mui/icons-material';
-import { useState } from 'react';
+import { Menu as MenuIcon, NotificationsNone } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../store/slices/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 const Header = ({ onMenuClick }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleLogout = () => {
-    // Clear localStorage
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
-    // Dispatch logout action
+    localStorage.clear();
     dispatch(logout());
-    handleClose();
+    navigate('/login');
   };
 
   return (
-    <AppBar
-      position="fixed"
+    <Box
       sx={{
+        position: 'fixed',
+        left: { xs: 0, md: '260px' },
+        top: 0,
+        right: 0,
+        height: { xs: 56, md: 64 },
         zIndex: (theme) => theme.zIndex.drawer + 1,
-        boxShadow: (theme) => theme.shadows[1],
+        bgcolor: '#fff',
+        display: 'flex',
+        alignItems: 'center',
+        px: 2,
+        justifyContent: 'space-between',
+        borderBottom: '1px solid #e5e7eb',
       }}
     >
-      <Toolbar>
-        <IconButton
-          edge="start"
-          color="inherit"
-          aria-label="menu"
-          onClick={onMenuClick}
-          sx={{ mr: 2 }}
+      {/* Logo + Menu */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        {isMobile && (
+          <IconButton onClick={onMenuClick}>
+            <MenuIcon />
+          </IconButton>
+        )}
+      </Box>
+
+      {/* Welcome + Bell */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Typography
+          variant="body2"
+          sx={{ fontWeight: 500, color: '#374151', fontSize: '0.95rem' }}
         >
-          <MenuIcon />
-        </IconButton>
-        
-        <Typography 
-          variant="h6" 
-          component="div" 
-          sx={{ 
-            flexGrow: 1,
-            fontWeight: 600,
+          Welcome, {user?.name} ({user?.role?.toUpperCase()})
+        </Typography>
+        <Box
+          sx={{
+            width: 44,
+            height: 44,
+            borderRadius: 2,
+            backgroundColor: '#111',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          Abhyaas - Training Management
-        </Typography>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <IconButton color="inherit">
-            <Badge badgeContent={4} color="error">
-              <Notifications />
-            </Badge>
-          </IconButton>
-          
-          <IconButton
-            size="large"
-            aria-label="account of current user"
-            aria-controls="menu-appbar"
-            aria-haspopup="true"
-            onClick={handleMenu}
-            color="inherit"
-          >
-            <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>
-              {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
-            </Avatar>
-          </IconButton>
-          
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-            sx={{
-              '& .MuiPaper-root': {
-                boxShadow: (theme) => theme.shadows[4],
-                mt: 1,
-              }
-            }}
-          >
-            <MenuItem onClick={handleClose}>
-              <AccountCircle sx={{ mr: 1 }} />
-              Profile
-            </MenuItem>
-            <MenuItem onClick={handleLogout}>
-              <Logout sx={{ mr: 1 }} />
-              Logout
-            </MenuItem>
-          </Menu>
+          <NotificationsNone sx={{ color: '#fff' }} />
         </Box>
-      </Toolbar>
-    </AppBar>
+      </Box>
+    </Box>
   );
 };
 

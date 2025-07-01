@@ -1,308 +1,149 @@
-
 import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  Box,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Chip,
-  Button,
-  TextField,
-  Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  IconButton,
-} from '@mui/material';
-import { Visibility, MergeType, FilterList } from '@mui/icons-material';
+  approveRequest,
+  rejectRequest,
+} from '../../store/slices/trainingRequestsSlice';
 
 const TrainingRequests = () => {
-  const [requests, setRequests] = useState([
-    {
-      id: 1,
-      topic: 'React Development',
-      requester: 'John Doe',
-      date: '2024-01-15',
-      priority: 'High',
-      status: 'Pending',
-      participants: 8,
-      objective: 'Learn React hooks and state management',
-    },
-    {
-      id: 2,
-      topic: 'Python Programming',
-      requester: 'Jane Smith',
-      date: '2024-01-14',
-      priority: 'Medium',
-      status: 'Approved',
-      participants: 12,
-      objective: 'Basic Python programming for beginners',
-    },
-    {
-      id: 3,
-      topic: 'React Development',
-      requester: 'Bob Johnson',
-      date: '2024-01-13',
-      priority: 'Medium',
-      status: 'Pending',
-      participants: 6,
-      objective: 'Advanced React patterns and performance',
-    },
-  ]);
+  const dispatch = useDispatch();
+  const { requests } = useSelector((state) => state.trainingRequests);
 
-  const [filters, setFilters] = useState({
-    dateFrom: '',
-    dateTo: '',
-    topic: '',
-    status: '',
-  });
+  const [selectedEmployees, setSelectedEmployees] = useState([]);
+  const [showModal, setShowModal] = useState(false);
 
-  const [viewDialog, setViewDialog] = useState({ open: false, request: null });
-  const [mergeDialog, setMergeDialog] = useState({ open: false, requests: [] });
-
-  const handleViewRequest = (request) => {
-    setViewDialog({ open: true, request });
+  const handleViewEmployees = (topic) => {
+    const employees = requests.filter((r) => r.topic === topic);
+    setSelectedEmployees(employees);
+    setShowModal(true);
   };
 
-  const handleMergeRequests = () => {
-    const similarRequests = requests.filter(req => 
-      req.topic === 'React Development' && req.status === 'Pending'
-    );
-    setMergeDialog({ open: true, requests: similarRequests });
+  const handleApprove = (id) => {
+    dispatch(approveRequest(id));
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Pending': return 'warning';
-      case 'Approved': return 'info';
-      case 'Completed': return 'success';
-      case 'Rejected': return 'error';
-      default: return 'default';
-    }
+  const handleReject = (id) => {
+    dispatch(rejectRequest(id));
   };
-
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'High': return 'error';
-      case 'Medium': return 'warning';
-      case 'Low': return 'success';
-      default: return 'default';
-    }
-  };
-
-  const filteredRequests = requests.filter(request => {
-    return (
-      (!filters.topic || request.topic.toLowerCase().includes(filters.topic.toLowerCase())) &&
-      (!filters.status || request.status === filters.status) &&
-      (!filters.dateFrom || request.date >= filters.dateFrom) &&
-      (!filters.dateTo || request.date <= filters.dateTo)
-    );
-  });
 
   return (
-    <Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4">Training Requests</Typography>
-        <Button
-          variant="contained"
-          startIcon={<MergeType />}
-          onClick={handleMergeRequests}
-          color="secondary"
-        >
-          Merge Similar Requests
-        </Button>
-      </Box>
+    <div className="container py-5">
+      <div className="card shadow p-4">
+        <h2 className="mb-4 fw-bold">All Training Requests</h2>
+        {requests.length === 0 ? (
+          <p>No data found.</p>
+        ) : (
+          <div className="table-responsive">
+            <table className="table table-bordered table-striped">
+              <thead className="table-light">
+                <tr>
+                  <th>Topic</th>
+                  <th>Custom Topic</th>
+                  <th>Priority</th>
+                  <th>Preferred Date</th>
+                  <th>Objective</th>
+                  <th>Status</th>
+                  <th>Participants</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {requests.map((req) => (
+                  <tr key={req.id}>
+                    <td>{req.topic}</td>
+                    <td>{req.customTopic || '-'}</td>
+                    <td>{req.priority}</td>
+                    <td>{req.preferredDate}</td>
+                    <td>{req.objective}</td>
+                    <td>
+                      <span className="badge bg-info">{req.status}</span>
+                    </td>
+                    <td>
+                      {
+                        requests.filter((r) => r.topic === req.topic).length
+                      }
+                    </td>
+                    <td className="d-flex flex-wrap gap-1">
+                      <button
+                        className="btn btn-sm btn-success"
+                        onClick={() => handleApprove(req.id)}
+                      >
+                        Approve
+                      </button>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        onClick={() => handleReject(req.id)}
+                      >
+                        Reject
+                      </button>
+                      <button
+                        className="btn btn-sm btn-secondary"
+                        onClick={() => handleViewEmployees(req.topic)}
+                      >
+                        View Employees
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
-      {/* Filters */}
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          <FilterList sx={{ mr: 1 }} />
-          Filters
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={3}>
-            <TextField
-              fullWidth
-              label="Date From"
-              type="date"
-              value={filters.dateFrom}
-              onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <TextField
-              fullWidth
-              label="Date To"
-              type="date"
-              value={filters.dateTo}
-              onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
-              InputLabelProps={{ shrink: true }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <TextField
-              fullWidth
-              label="Topic"
-              value={filters.topic}
-              onChange={(e) => setFilters({ ...filters, topic: e.target.value })}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <FormControl fullWidth>
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={filters.status}
-                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-              >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="Pending">Pending</MenuItem>
-                <MenuItem value="Approved">Approved</MenuItem>
-                <MenuItem value="Completed">Completed</MenuItem>
-                <MenuItem value="Rejected">Rejected</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
-      </Paper>
-
-      {/* Requests Table */}
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Topic</TableCell>
-              <TableCell>Requester</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Priority</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Participants</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredRequests.map((request) => (
-              <TableRow key={request.id}>
-                <TableCell>{request.topic}</TableCell>
-                <TableCell>{request.requester}</TableCell>
-                <TableCell>{request.date}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={request.priority}
-                    color={getPriorityColor(request.priority)}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={request.status}
-                    color={getStatusColor(request.status)}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>{request.participants}</TableCell>
-                <TableCell>
-                  <IconButton onClick={() => handleViewRequest(request)} color="primary">
-                    <Visibility />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* View Request Dialog */}
-      <Dialog
-        open={viewDialog.open}
-        onClose={() => setViewDialog({ open: false, request: null })}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Training Request Details</DialogTitle>
-        <DialogContent>
-          {viewDialog.request && (
-            <Box>
-              <Typography variant="h6" gutterBottom>
-                {viewDialog.request.topic}
-              </Typography>
-              <Typography variant="body2" gutterBottom>
-                <strong>Requester:</strong> {viewDialog.request.requester}
-              </Typography>
-              <Typography variant="body2" gutterBottom>
-                <strong>Date:</strong> {viewDialog.request.date}
-              </Typography>
-              <Typography variant="body2" gutterBottom>
-                <strong>Priority:</strong> {viewDialog.request.priority}
-              </Typography>
-              <Typography variant="body2" gutterBottom>
-                <strong>Expected Participants:</strong> {viewDialog.request.participants}
-              </Typography>
-              <Typography variant="body2" gutterBottom>
-                <strong>Objective:</strong>
-              </Typography>
-              <Typography variant="body2">
-                {viewDialog.request.objective}
-              </Typography>
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setViewDialog({ open: false, request: null })}>
-            Close
-          </Button>
-          <Button variant="contained" color="success">
-            Approve
-          </Button>
-          <Button variant="contained" color="error">
-            Reject
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Merge Requests Dialog */}
-      <Dialog
-        open={mergeDialog.open}
-        onClose={() => setMergeDialog({ open: false, requests: [] })}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>Merge Similar Requests</DialogTitle>
-        <DialogContent>
-          <Typography variant="body1" gutterBottom>
-            Found {mergeDialog.requests.length} similar requests for "React Development":
-          </Typography>
-          {mergeDialog.requests.map((request) => (
-            <Box key={request.id} sx={{ p: 1, border: 1, borderColor: 'grey.300', mb: 1 }}>
-              <Typography variant="body2">
-                <strong>{request.requester}</strong> - {request.participants} participants
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {request.objective}
-              </Typography>
-            </Box>
-          ))}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setMergeDialog({ open: false, requests: [] })}>
-            Cancel
-          </Button>
-          <Button variant="contained">
-            Merge Selected
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+      {/* Modal for Employee Details */}
+      {showModal && (
+        <div className="modal fade show d-block" tabIndex="-1">
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Employees for {selectedEmployees[0]?.topic}</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Topic</th>
+                      <th>Custom Topic</th>
+                      <th>Preferred Date</th>
+                      <th>Objective</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedEmployees.map((emp) => (
+                      <tr key={emp.id}>
+                        <td>{emp.topic}</td>
+                        <td>{emp.customTopic || '-'}</td>
+                        <td>{emp.preferredDate}</td>
+                        <td>{emp.objective}</td>
+                        <td>
+                          <span className="badge bg-info">{emp.status}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowModal(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

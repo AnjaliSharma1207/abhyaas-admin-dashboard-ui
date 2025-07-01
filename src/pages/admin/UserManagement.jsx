@@ -24,44 +24,25 @@ import {
   TablePagination,
 } from '@mui/material';
 import { Edit, Delete, Add, Search } from '@mui/icons-material';
-import api from '../../lib/axios';
+import { useSelector, useDispatch } from 'react-redux';
+import { addUser, updateUser, deleteUser as deleteUserAction } from '../../store/slices/usersSlice';
 
 const UserManagement = () => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [actionLoading, setActionLoading] = useState(false);
-  
+  const users = useSelector((state) => state.users.users);
+  const dispatch = useDispatch();
+
   const [open, setOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
-
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     role: '',
     status: 'Active',
   });
-
-  const fetchUsers = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await api.get('/api/user');
-      setUsers(res.data);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch users');
-      setUsers([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const [error, setError] = useState(null);
 
   const handleOpen = (user = null) => {
     setSelectedUser(user);
@@ -73,56 +54,31 @@ const UserManagement = () => {
     setOpen(false);
     setSelectedUser(null);
     setFormData({ name: '', email: '', role: '', status: 'Active' });
+    setError(null);
   };
 
-  const roleMap = {
-  Admin: 1,
-  Employee: 2,
-  Trainer: 3,
-  'L&D': 4,
-};
-
-const statusMap = {
-  Active: 1,
-  Inactive: 0,
-};
-
-const handleSave = async () => {
-  setActionLoading(true);
-  setError(null);
-  try {
-    const payload = {
-      ...formData,
-      role: roleMap[formData.role] || formData.role,       // convert role string to int
-      status: statusMap[formData.status] ?? formData.status // convert status string to int
-    };
-    if (selectedUser) {
-      // Update
-      await api.put(`/api/user/${selectedUser.id}`, { ...payload, id: selectedUser.id });
-    } else {
-      // Create
-      await api.post('/api/user', payload);
-    }
-    await fetchUsers();
-    handleClose();
-  } catch (err) {
-    setError(err.response?.data?.message || 'Failed to save user');
-  } finally {
-    setActionLoading(false);
-  }
-};
-
-  const handleDelete = async (id) => {
-    setActionLoading(true);
+  const handleSave = () => {
     setError(null);
     try {
-      await api.delete(`/api/user/${id}`);
-      await fetchUsers();
+      if (!formData.name || !formData.email || !formData.role) {
+        setError('Name, Email, and Role are required.');
+        return;
+      }
+      if (selectedUser) {
+        dispatch(updateUser({ ...formData, id: selectedUser.id }));
+      } else {
+        // Generate a unique id (timestamp + random)
+        const id = Date.now().toString() + Math.floor(Math.random() * 1000).toString();
+        dispatch(addUser({ ...formData, id }));
+      }
+      handleClose();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to delete user');
-    } finally {
-      setActionLoading(false);
+      setError('Failed to save user');
     }
+  };
+
+  const handleDelete = (id) => {
+    dispatch(deleteUserAction(id));
   };
 
   const filteredUsers = users.filter(user =>
@@ -158,11 +114,7 @@ const handleSave = async () => {
       </Box>
 
       <TableContainer component={Paper}>
-        {loading ? (
-          <Box p={3} textAlign="center">Loading users...</Box>
-        ) : error ? (
-          <Box p={3} color="error.main" textAlign="center">{error}</Box>
-        ) : filteredUsers.length === 0 ? (
+        {filteredUsers.length === 0 ? (
           <Box p={3} textAlign="center">No users found.</Box>
         ) : (
           <Table>
@@ -223,6 +175,9 @@ const handleSave = async () => {
         </DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 1 }}>
+            {error && (
+              <Typography color="error" variant="body2" sx={{ mb: 1 }}>{error}</Typography>
+            )}
             <TextField
               fullWidth
               label="Name"

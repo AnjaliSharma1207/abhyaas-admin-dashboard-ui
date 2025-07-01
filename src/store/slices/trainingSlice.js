@@ -1,32 +1,46 @@
-
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   requests: [],
-  announcements: [],
-  reports: [],
-  loading: false,
-  error: null,
 };
 
 const trainingSlice = createSlice({
   name: 'training',
   initialState,
   reducers: {
-    setRequests: (state, action) => {
-      state.requests = action.payload;
-    },
     addRequest: (state, action) => {
-      state.requests.push(action.payload);
+      const { topic, preferredDate, requester, ...rest } = action.payload;
+
+      const existing = state.requests.find(
+        (req) => req.topic === topic && req.preferredDate === preferredDate
+      );
+
+      if (existing) {
+        if (!existing.requesters.includes(requester)) {
+          existing.requesters.push(requester);
+        }
+      } else {
+        state.requests.push({
+          id: Date.now(),
+          topic,
+          preferredDate,
+          priority: rest.priority,
+          objective: rest.objective,
+          requesters: [requester],
+          status: 'Pending',
+        });
+      }
     },
-    setAnnouncements: (state, action) => {
-      state.announcements = action.payload;
-    },
-    addAnnouncement: (state, action) => {
-      state.announcements.push(action.payload);
+
+    updateRequestStatus: (state, action) => {
+      const { id, status } = action.payload;
+      const req = state.requests.find((r) => r.id === id);
+      if (req) {
+        req.status = status;
+      }
     },
   },
 });
 
-export const { setRequests, addRequest, setAnnouncements, addAnnouncement } = trainingSlice.actions;
+export const { addRequest, updateRequestStatus } = trainingSlice.actions;
 export default trainingSlice.reducer;

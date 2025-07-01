@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Drawer,
@@ -8,116 +7,56 @@ import {
   ListItemText,
   Typography,
   Box,
-  useTheme,
   ListItemButton,
 } from '@mui/material';
 import {
-  Dashboard,
+  Dashboard as DashboardIcon,
   People,
   Security,
   School,
   Assignment,
   PersonAdd,
   BarChart,
-  Announcement,
-  Book,
-  RequestPage,
-  GroupAdd,
+  Logout,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
-const menuItems = [
-  { text: 'Dashboard', icon: <Dashboard />, path: '/admin/dashboard' },
-  { text: 'User Management', icon: <People />, path: '/admin/users' },
-  { text: 'Role Management', icon: <Security />, path: '/admin/roles' },
-  { text: 'Course Management', icon: <School />, path: '/admin/courses' },
-  { text: 'Training Requests', icon: <Assignment />, path: '/admin/training-requests' },
-  { text: 'Assign Trainer', icon: <PersonAdd />, path: '/admin/assign-trainer' },
-  { text: 'Reports', icon: <BarChart />, path: '/admin/reports' },
-  { text: 'Announcements', icon: <Announcement />, path: '/admin/announcements' },
-  { text: 'My Trainings', icon: <Book />, path: '/employee/dashboard' },
-  { text: 'Submit Training Request', icon: <RequestPage />, path: '/employee/submit-request' },
-  { text: 'Invite Trainers', icon: <GroupAdd />, path: '/lnd/invite-trainer' },
-];
+export const drawerWidth = 260;
 
-const Sidebar = ({ open, onClose, variant, drawerWidth = 260 }) => {
-  const theme = useTheme();
+const menuConfig = {
+  admin: [
+    { label: 'Dashboard', icon: <DashboardIcon />, key: 'dashboard', path: '/dashboard' },
+    { label: 'User Management', icon: <People />, key: 'user-management', path: '/dashboard' },
+    { label: 'Role Management', icon: <Security />, key: 'role-management', path: '/dashboard' },
+    { label: 'Course Management', icon: <School />, key: 'course-management', path: '/dashboard' },
+  ],
+  ld: [
+    { label: 'Dashboard', icon: <DashboardIcon />, key: 'dashboard', path: '/dashboard' },
+    { label: 'Training Requests', icon: <Assignment />, key: 'training-requests', path: '/dashboard' },
+    { label: 'Assign Trainer', icon: <PersonAdd />, key: 'assign-trainer', path: '/dashboard' },
+    { label: 'Generate Report', icon: <BarChart />, key: 'generate-report', path: '/dashboard' },
+  ],
+  employee: [
+    { label: 'Dashboard', icon: <DashboardIcon />, key: 'dashboard', path: '/dashboard' },
+    { label: 'Submit Training Request', icon: <Assignment />, key: 'submit-training-request', path: '/dashboard' },
+    { label: 'My Trainings', icon: <School />, key: 'my-trainings', path: '/dashboard' },
+  ],
+};
+
+const Sidebar = ({ open, onClose, variant, drawerWidth: propDrawerWidth = drawerWidth }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useSelector((state) => state.auth);
+  const role = user?.role;
+  const menuItems = menuConfig[role] || [];
 
-  const handleItemClick = (path) => {
-    navigate(path);
-    if (variant === 'temporary') {
-      onClose();
-    }
+  const handleItemClick = (item) => {
+    navigate('/dashboard', { state: { tab: item.key } });
+    if (variant === 'temporary') onClose();
   };
 
-  const drawer = (
-    <Box sx={{ 
-      height: '100%', 
-      display: 'flex', 
-      flexDirection: 'column',
-      backgroundColor: theme.palette.background.paper
-    }}>
-      <Box sx={{ 
-        p: theme.spacing(3), 
-        borderBottom: `1px solid ${theme.palette.divider}`,
-        backgroundColor: theme.palette.primary.main,
-        color: theme.palette.primary.contrastText
-      }}>
-        <Typography variant="h5" fontWeight="bold">
-          Abhyaas
-        </Typography>
-        <Typography variant="body2" sx={{ opacity: 0.8 }}>
-          Training Management
-        </Typography>
-      </Box>
-      
-      <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-        <List sx={{ py: 1 }}>
-          {menuItems.map((item) => (
-            <ListItem key={item.text} disablePadding sx={{ px: 1 }}>
-              <ListItemButton
-                onClick={() => handleItemClick(item.path)}
-                selected={location.pathname === item.path}
-                sx={{
-                  borderRadius: 1,
-                  mb: 0.5,
-                  transition: 'all 0.2s ease',
-                  '&.Mui-selected': {
-                    backgroundColor: theme.palette.primary.main,
-                    color: theme.palette.primary.contrastText,
-                    boxShadow: theme.shadows[2],
-                    '&:hover': {
-                      backgroundColor: theme.palette.primary.dark,
-                    },
-                    '& .MuiListItemIcon-root': {
-                      color: theme.palette.primary.contrastText,
-                    },
-                  },
-                  '&:hover': {
-                    backgroundColor: theme.palette.action.hover,
-                    boxShadow: theme.shadows[1],
-                  },
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: 40 }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText 
-                  primary={item.text}
-                  primaryTypographyProps={{
-                    fontSize: '0.875rem',
-                    fontWeight: location.pathname === item.path ? 600 : 400,
-                  }}
-                />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </Box>
-    </Box>
-  );
+  const activeTab = location.state?.tab || 'dashboard';
 
   return (
     <Drawer
@@ -125,17 +64,114 @@ const Sidebar = ({ open, onClose, variant, drawerWidth = 260 }) => {
       open={open}
       onClose={onClose}
       sx={{
-        width: drawerWidth,
+        width: propDrawerWidth,
         flexShrink: 0,
         '& .MuiDrawer-paper': {
-          width: drawerWidth,
+          width: propDrawerWidth,
           boxSizing: 'border-box',
-          borderRight: `1px solid ${theme.palette.divider}`,
-          boxShadow: variant === 'persistent' ? theme.shadows[2] : 'none',
+          borderRight: '1px solid #eee',
+          height: '100vh', // Full height
+          display: 'flex',
+          flexDirection: 'column',
         },
       }}
     >
-      {drawer}
+      {/* Header (Logo + Title) */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          px: 3,
+          py: 2,
+          minHeight: '64px',
+          borderBottom: '1px solid #eee',
+          flexShrink: 0,
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
+          backgroundColor: '#fff',
+        }}
+      >
+        <Box
+          component="img"
+          src="/training.png"
+          alt="logo"
+          sx={{ width: 36, height: 36 }}
+        />
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: 700, fontSize: '1.5rem', color: '#1f2937' }}
+        >
+          अभ्यास
+        </Typography>
+      </Box>
+
+      {/* Menu List */}
+      <Box sx={{ flexGrow: 1, overflowY: 'auto', py: 2 }}>
+        <List sx={{ py: 0 }}>
+          {menuItems.map((item) => (
+            <ListItem key={item.key} disablePadding sx={{ px: 2, mb: 0.5 }}>
+              <ListItemButton
+                onClick={() => handleItemClick(item)}
+                selected={activeTab === item.key}
+                sx={{
+                  borderRadius: 2,
+                  backgroundColor:
+                    activeTab === item.key ? 'rgba(33, 150, 243, 0.12)' : 'transparent',
+                  color: activeTab === item.key ? '#1976d2' : '#222',
+                  fontWeight: activeTab === item.key ? 600 : 400,
+                  '& .MuiListItemIcon-root': {
+                    color: activeTab === item.key ? '#1976d2' : '#888',
+                  },
+                  '&:hover': {
+                    backgroundColor: 'rgba(33, 150, 243, 0.08)',
+                  },
+                  minHeight: 48,
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 36 }}>{item.icon}</ListItemIcon>
+                <ListItemText
+                  primary={item.label}
+                  primaryTypographyProps={{
+                    fontSize: '0.95rem',
+                    fontWeight: activeTab === item.key ? 600 : 400,
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+
+      {/* Logout Button */}
+      <Box sx={{ px: 2, py: 2.5 }}>
+        <ListItem disablePadding>
+          <ListItemButton
+            sx={{
+              borderRadius: 2,
+              backgroundColor: 'rgba(244, 67, 54, 0.08)',
+              color: '#d32f2f',
+              fontWeight: 600,
+              minHeight: 44,
+              '&:hover': {
+                backgroundColor: 'rgba(244, 67, 54, 0.15)',
+              },
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: 36, color: '#d32f2f' }}>
+              <Logout />
+            </ListItemIcon>
+            <ListItemText
+              primary="Logout"
+              primaryTypographyProps={{
+                fontSize: '0.95rem',
+                fontWeight: 600,
+              }}
+            />
+          </ListItemButton>
+        </ListItem>
+      </Box>
     </Drawer>
   );
 };

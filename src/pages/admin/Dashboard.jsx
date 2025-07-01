@@ -1,206 +1,92 @@
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Paper } from '@mui/material';
+import { Dashboard as DashboardIcon, People, Security, School, Assignment, PersonAdd, BarChart } from '@mui/icons-material';
+import { useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
+import UserManagement from './UserManagement';
+import RoleManagement from './RoleManagement';
+import CourseManagement from './CourseManagement';
+import TrainingRequests from './TrainingRequests';
+import AssignTrainer from './AssignTrainer';
+import Reports from './Reports';
+import SubmitRequest from '../../pages/employee/SubmitRequest';
+import EmployeeDashboard from '../../pages/employee/EmployeeDashboard';
 
-import React from 'react';
-import {
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  Box,
-  Paper,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Chip,
-  useTheme,
-  Container,
-} from '@mui/material';
-import {
-  People,
-  School,
-  Assignment,
-  TrendingUp,
-  Event,
-  CheckCircle,
-  Pending,
-} from '@mui/icons-material';
+const menuConfig = {
+  admin: [
+    { label: 'Dashboard', icon: <DashboardIcon />, key: 'dashboard' },
+    { label: 'User Management', icon: <People />, key: 'user-management' },
+    { label: 'Role Management', icon: <Security />, key: 'role-management' },
+    { label: 'Course Management', icon: <School />, key: 'course-management' },
+  ],
+  ld: [
+    { label: 'Dashboard', icon: <DashboardIcon />, key: 'dashboard' },
+    { label: 'Training Requests', icon: <Assignment />, key: 'training-requests' },
+    { label: 'Assign Trainer', icon: <PersonAdd />, key: 'assign-trainer' },
+    { label: 'Generate Report', icon: <BarChart />, key: 'generate-report' },
+  ],
+  employee: [
+    { label: 'Dashboard', icon: <DashboardIcon />, key: 'dashboard' },
+    { label: 'Submit Training Request', icon: <Assignment />, key: 'submit-training-request' },
+    { label: 'My Trainings', icon: <School />, key: 'my-trainings' },
+  ],
+};
 
 const Dashboard = () => {
-  const theme = useTheme();
-  
-  const stats = [
-    { title: 'Total Users', value: '1,234', icon: <People />, color: theme.palette.primary.main },
-    { title: 'Active Courses', value: '45', icon: <School />, color: theme.palette.success.main },
-    { title: 'Training Requests', value: '128', icon: <Assignment />, color: theme.palette.warning.main },
-    { title: 'Completion Rate', value: '87%', icon: <TrendingUp />, color: theme.palette.info.main },
-  ];
+  const { user } = useSelector((state) => state.auth);
+  const role = user?.role;
+  const menuItems = menuConfig[role] || [];
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState('dashboard');
 
-  const recentActivities = [
-    { text: 'New user registration: John Doe', time: '2 hours ago', status: 'new' },
-    { text: 'Training completed: React Fundamentals', time: '4 hours ago', status: 'completed' },
-    { text: 'Course updated: Advanced JavaScript', time: '1 day ago', status: 'updated' },
-    { text: 'Training request: Python for Beginners', time: '2 days ago', status: 'pending' },
-  ];
+  // Sync activeTab with location.state.tab
+  useEffect(() => {
+    if (location.state && location.state.tab && menuItems.some(item => item.key === location.state.tab)) {
+      setActiveTab(location.state.tab);
+    } else {
+      setActiveTab('dashboard');
+    }
+    // eslint-disable-next-line
+  }, [location.state, role]);
 
-  const quickStats = [
-    { label: 'Pending Requests', value: '23' },
-    { label: 'Active Trainers', value: '15' },
-    { label: 'This Month\'s Trainings', value: '34' },
-    { label: 'User Satisfaction', value: '4.8/5' },
-  ];
+  const renderContent = () => {
+    if (activeTab === 'dashboard') {
+      return (
+        <Paper sx={{ p: 4, mb: 2 }}>
+          <Typography variant="h4" gutterBottom>
+            {role === 'admin' && 'Welcome to the Admin Dashboard!'}
+            {role === 'ld' && 'Welcome to the L&D Dashboard!'}
+            {role === 'employee' && 'Welcome to your Dashboard!'}
+          </Typography>
+          <Typography variant="body1">
+            {role === 'admin' && 'Manage users, roles, and courses from the sidebar.'}
+            {role === 'ld' && 'Manage training requests, assign trainers, and generate reports.'}
+            {role === 'employee' && 'Submit training requests and view your trainings.'}
+          </Typography>
+        </Paper>
+      );
+    }
+    if (role === 'admin') {
+      if (activeTab === 'user-management') return <UserManagement />;
+      if (activeTab === 'role-management') return <RoleManagement />;
+      if (activeTab === 'course-management') return <CourseManagement />;
+    }
+    if (role === 'ld') {
+      if (activeTab === 'training-requests') return <TrainingRequests />;
+      if (activeTab === 'assign-trainer') return <AssignTrainer />;
+      if (activeTab === 'generate-report') return <Reports />;
+    }
+    if (role === 'employee') {
+      if (activeTab === 'submit-training-request') return <SubmitRequest />;
+      if (activeTab === 'my-trainings') return <EmployeeDashboard />;
+    }
+    return null;
+  };
 
   return (
-    <Container maxWidth={false} disableGutters>
-      <Typography variant="h4" gutterBottom sx={{ mb: 3, fontWeight: 600 }}>
-        Admin Dashboard
-      </Typography>
-      
-      <Grid container spacing={3}>
-        {/* Stats Cards */}
-        {stats.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <Card 
-              sx={{ 
-                height: '100%',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: theme.shadows[8],
-                }
-              }}
-            >
-              <CardContent sx={{ p: theme.spacing(3) }}>
-                <Box display="flex" alignItems="center">
-                  <Box
-                    sx={{
-                      p: theme.spacing(2),
-                      borderRadius: 2,
-                      backgroundColor: stat.color,
-                      color: 'white',
-                      mr: theme.spacing(2),
-                      boxShadow: theme.shadows[3],
-                    }}
-                  >
-                    {stat.icon}
-                  </Box>
-                  <Box>
-                    <Typography variant="h4" fontWeight="bold" color="text.primary">
-                      {stat.value}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {stat.title}
-                    </Typography>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-
-        {/* Recent Activities */}
-        <Grid item xs={12} md={8}>
-          <Paper 
-            sx={{ 
-              p: theme.spacing(3), 
-              height: '100%',
-              transition: 'box-shadow 0.3s ease',
-              '&:hover': {
-                boxShadow: theme.shadows[4],
-              }
-            }}
-          >
-            <Typography variant="h5" gutterBottom sx={{ mb: theme.spacing(2), fontWeight: 600 }}>
-              Recent Activities
-            </Typography>
-            <List>
-              {recentActivities.map((activity, index) => (
-                <ListItem 
-                  key={index} 
-                  divider
-                  sx={{
-                    borderRadius: 1,
-                    mb: 1,
-                    transition: 'all 0.2s ease',
-                    '&:hover': {
-                      backgroundColor: 'action.hover',
-                      transform: 'translateX(8px)',
-                    }
-                  }}
-                >
-                  <ListItemIcon>
-                    {activity.status === 'completed' && <CheckCircle color="success" />}
-                    {activity.status === 'pending' && <Pending color="warning" />}
-                    {activity.status === 'new' && <People color="primary" />}
-                    {activity.status === 'updated' && <Event color="info" />}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={activity.text}
-                    secondary={activity.time}
-                    primaryTypographyProps={{ fontWeight: 500 }}
-                  />
-                  <Chip
-                    label={activity.status}
-                    size="small"
-                    color={
-                      activity.status === 'completed' ? 'success' :
-                      activity.status === 'pending' ? 'warning' :
-                      activity.status === 'new' ? 'primary' : 'info'
-                    }
-                    sx={{ ml: 1 }}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </Paper>
-        </Grid>
-
-        {/* Quick Stats */}
-        <Grid item xs={12} md={4}>
-          <Paper 
-            sx={{ 
-              p: theme.spacing(3), 
-              height: '100%',
-              transition: 'box-shadow 0.3s ease',
-              '&:hover': {
-                boxShadow: theme.shadows[4],
-              }
-            }}
-          >
-            <Typography variant="h5" gutterBottom sx={{ mb: theme.spacing(3), fontWeight: 600 }}>
-              Quick Stats
-            </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: theme.spacing(2) }}>
-              {quickStats.map((stat, index) => (
-                <Box 
-                  key={index}
-                  sx={{
-                    display: 'flex', 
-                    justifyContent: 'space-between',
-                    p: theme.spacing(2),
-                    borderRadius: 1,
-                    backgroundColor: 'background.default',
-                    transition: 'all 0.2s ease',
-                    '&:hover': {
-                      backgroundColor: 'action.hover',
-                      transform: 'scale(1.02)',
-                      boxShadow: theme.shadows[2],
-                    }
-                  }}
-                >
-                  <Typography variant="subtitle2" color="text.secondary">
-                    {stat.label}
-                  </Typography>
-                  <Typography variant="subtitle2" fontWeight="bold" color="primary.main">
-                    {stat.value}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
-          </Paper>
-        </Grid>
-      </Grid>
-    </Container>
+    <Box sx={{ minHeight: '80vh' }}>
+      {renderContent()}
+    </Box>
   );
 };
 

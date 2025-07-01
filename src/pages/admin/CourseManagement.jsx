@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Box,
@@ -21,37 +20,12 @@ import {
   IconButton,
 } from '@mui/material';
 import { Add, Edit, Delete, Visibility } from '@mui/icons-material';
+import { useSelector, useDispatch } from 'react-redux';
+import { addCourse, updateCourse, deleteCourse as deleteCourseAction } from '../../store/slices/coursesSlice';
 
 const CourseManagement = () => {
-  const [courses, setCourses] = useState([
-    {
-      id: 1,
-      title: 'React Fundamentals',
-      description: 'Learn the basics of React development',
-      duration: '40 hours',
-      level: 'Beginner',
-      status: 'Active',
-      enrollments: 25,
-    },
-    {
-      id: 2,
-      title: 'Advanced JavaScript',
-      description: 'Master advanced JavaScript concepts',
-      duration: '60 hours',
-      level: 'Advanced',
-      status: 'Active',
-      enrollments: 18,
-    },
-    {
-      id: 3,
-      title: 'Python for Data Science',
-      description: 'Python programming for data analysis',
-      duration: '80 hours',
-      level: 'Intermediate',
-      status: 'Draft',
-      enrollments: 0,
-    },
-  ]);
+  const courses = useSelector((state) => state.courses.courses);
+  const dispatch = useDispatch();
 
   const [open, setOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -61,7 +35,9 @@ const CourseManagement = () => {
     duration: '',
     level: '',
     status: 'Draft',
+    image: '',
   });
+  const [error, setError] = useState(null);
 
   const handleOpen = (course = null) => {
     setSelectedCourse(course);
@@ -71,28 +47,46 @@ const CourseManagement = () => {
       duration: '',
       level: '',
       status: 'Draft',
+      image: '',
     });
     setOpen(true);
+    setError(null);
   };
 
   const handleClose = () => {
     setOpen(false);
     setSelectedCourse(null);
+    setError(null);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({ ...prev, image: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSave = () => {
+    setError(null);
+    if (!formData.title || !formData.description || !formData.duration || !formData.level) {
+      setError('All fields except image are required.');
+      return;
+    }
     if (selectedCourse) {
-      setCourses(courses.map(course => 
-        course.id === selectedCourse.id ? { ...formData, id: selectedCourse.id, enrollments: selectedCourse.enrollments } : course
-      ));
+      dispatch(updateCourse({ ...formData, id: selectedCourse.id, enrollments: selectedCourse.enrollments || 0 }));
     } else {
-      setCourses([...courses, { ...formData, id: Date.now(), enrollments: 0 }]);
+      const id = Date.now().toString() + Math.floor(Math.random() * 1000).toString();
+      dispatch(addCourse({ ...formData, id, enrollments: 0 }));
     }
     handleClose();
   };
 
   const handleDelete = (id) => {
-    setCourses(courses.filter(course => course.id !== id));
+    dispatch(deleteCourseAction(id));
   };
 
   const getLevelColor = (level) => {
@@ -122,6 +116,13 @@ const CourseManagement = () => {
           <Grid item xs={12} md={6} lg={4} key={course.id}>
             <Card>
               <CardContent>
+                {course.image && (
+                  <img
+                    src={course.image}
+                    alt={course.title}
+                    style={{ width: '100%', height: 160, objectFit: 'cover', marginBottom: 8, borderRadius: 4 }}
+                  />
+                )}
                 <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
                   <Typography variant="h6" component="div">
                     {course.title}
@@ -169,6 +170,9 @@ const CourseManagement = () => {
         </DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 1 }}>
+            {error && (
+              <Typography color="error" variant="body2" sx={{ mb: 1 }}>{error}</Typography>
+            )}
             <TextField
               fullWidth
               label="Course Title"
@@ -222,6 +226,20 @@ const CourseManagement = () => {
                 </FormControl>
               </Grid>
             </Grid>
+            <TextField
+              fullWidth
+              label="Image"
+              type="file"
+              onChange={handleImageChange}
+              margin="normal"
+            />
+            {formData.image && (
+              <img
+                src={formData.image}
+                alt="Course"
+                style={{ maxWidth: '100%', marginTop: 10 }}
+              />
+            )}
           </Box>
         </DialogContent>
         <DialogActions>

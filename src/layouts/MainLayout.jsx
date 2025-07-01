@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
 import Sidebar from '../components/layout/Sidebar';
@@ -12,45 +11,30 @@ const MainLayout = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
 
-  const handleDrawerToggle = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
+  useEffect(() => {
+    setSidebarOpen(!isMobile);
+  }, [isMobile]);
+
+  const toggleSidebar = () => setSidebarOpen(prev => !prev);
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      <Header onMenuClick={handleDrawerToggle} />
-      <Sidebar 
-        open={sidebarOpen} 
-        onClose={handleDrawerToggle}
+    <Box sx={{ display: 'flex', width: '100vw', minHeight: '100vh', overflowX: 'hidden' }}>
+      <Sidebar
+        open={sidebarOpen}
+        onClose={toggleSidebar}
         variant={isMobile ? 'temporary' : 'persistent'}
         drawerWidth={DRAWER_WIDTH}
       />
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: '100vh',
-          marginTop: '64px',
-          marginLeft: { 
-            xs: 0, 
-            md: sidebarOpen ? `${DRAWER_WIDTH}px` : 0 
-          },
-          transition: theme.transitions.create(['margin'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-          }),
-          backgroundColor: theme.palette.background.default,
-        }}
-      >
-        <Box sx={{ 
-          flexGrow: 1,
-          p: 3,
-          maxWidth: '1400px',
-          width: '100%',
-          mx: 'auto'
-        }}>
+      <Box sx={{ flexGrow: 1, width: '100%' }}>
+        <Header onMenuClick={toggleSidebar} />
+        <Box
+          sx={{
+            marginTop: { xs: '56px', md: '64px' },
+            padding: { xs: 2, md: 3 },
+            marginLeft: !isMobile ? `${DRAWER_WIDTH}px` : 0,
+            transition: 'margin 0.3s ease',
+          }}
+        >
           <Outlet />
         </Box>
       </Box>

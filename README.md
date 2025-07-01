@@ -1,73 +1,68 @@
-# Welcome to your Lovable project
+# Abhyaas Admin Dashboard UI
 
-## Project info
+A modern, responsive admin dashboard built with React, TypeScript, Vite, Tailwind CSS, and shadcn-ui.
 
-**URL**: https://lovable.dev/projects/d6258718-7765-4234-be4c-ab9369fe0f7f
+## Getting Started
 
-## How can I edit this code?
+### Prerequisites
+- Node.js (v16 or above recommended)
+- npm (v8 or above recommended)
 
-There are several ways of editing your application.
+### Installation
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/d6258718-7765-4234-be4c-ab9369fe0f7f) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Clone the repository and install dependencies:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# Clone the repository
 git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies
+npm install
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Running the Development Server
+
+```sh
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at [http://localhost:8080](http://localhost:8080) by default.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Building for Production
 
-**Use GitHub Codespaces**
+```sh
+npm run build
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Preview Production Build
 
-## What technologies are used for this project?
+```sh
+npm run preview
+```
 
-This project is built with:
-
+## Tech Stack
 - Vite
 - TypeScript
 - React
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
+## Project Structure
+- `src/` - Main source code (components, pages, layouts, store, etc.)
+- `public/` - Static assets
+- `vite.config.ts` - Vite configuration
 
-Simply open [Lovable](https://lovable.dev/projects/d6258718-7765-4234-be4c-ab9369fe0f7f) and click on Share -> Publish.
+## Deployment
 
-## Can I connect a custom domain to my Lovable project?
+You can deploy the production build (`dist/` folder) to any static hosting provider (Vercel, Netlify, GitHub Pages, etc.).
 
-Yes, you can!
+1. Build the project:
+   ```sh
+   npm run build
+   ```
+2. Deploy the contents of the `dist/` directory to your preferred hosting provider.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+For any questions or issues, please open an issue in this repository.

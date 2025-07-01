@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   TextField,
@@ -35,34 +34,61 @@ const Login = () => {
     }));
   };
 
+  const dummyUsers = [
+    {
+      id: 1,
+      name: 'Admin User',
+      email: 'admin@company.com',
+      password: 'admin123',
+      role: 'admin',
+    },
+    {
+      id: 2,
+      name: 'Employee User',
+      email: 'employee@company.com',
+      password: 'employee123',
+      role: 'employee',
+    },
+    {
+      id: 3,
+      name: 'L&D User',
+      email: 'ld@company.com',
+      password: 'ld123',
+      role: 'ld',
+    },
+  ];
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.email || !formData.password) {
       dispatch(loginFailure('Please fill in all fields'));
       return;
     }
-    
     dispatch(loginStart());
-    
     // Simulate login API call
     setTimeout(() => {
-      const userData = {
-        id: 1,
-        name: 'Admin User',
-        email: formData.email,
-        role: 'admin',
-      };
-      
-      const authToken = 'dummy-auth-token-' + Date.now();
-      
-      // Store in localStorage if remember me is checked
-      if (formData.rememberMe) {
-        localStorage.setItem('authToken', authToken);
-        localStorage.setItem('user', JSON.stringify(userData));
+      const foundUser = dummyUsers.find(
+        (user) => user.email === formData.email && user.password === formData.password
+      );
+      if (!foundUser) {
+        dispatch(loginFailure('Invalid email or password'));
+        return;
       }
-      
-      dispatch(loginSuccess(userData));
-      navigate('/admin/dashboard');
+      const authToken = 'dummy-auth-token-' + Date.now();
+      // Store in localStorage
+      localStorage.setItem('authToken', authToken);
+      localStorage.setItem('user', JSON.stringify(foundUser));
+      dispatch(loginSuccess(foundUser));
+      // Redirect based on role
+      if (foundUser.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else if (foundUser.role === 'employee') {
+        navigate('/employee/dashboard');
+      } else if (foundUser.role === 'ld') {
+        navigate('/lnd/invite-trainer');
+      } else {
+        navigate('/');
+      }
     }, 1000);
   };
 

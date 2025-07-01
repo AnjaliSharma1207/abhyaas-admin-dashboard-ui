@@ -1,49 +1,19 @@
-
 import React, { useState } from 'react';
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Button,
-  Grid,
-  Chip,
-  Alert,
-} from '@mui/material';
-import { Send } from '@mui/icons-material';
+import { useDispatch, useSelector } from 'react-redux';
+import { addRequest, deleteRequest } from '../../store/slices/trainingRequestsSlice';
 
 const SubmitRequest = () => {
-  const [formData, setFormData] = useState({
-    topic: '',
-    customTopic: '',
-    objective: '',
-    priority: 'Medium',
-    preferredDate: '',
-    participants: '',
-  });
-  const [showSuccess, setShowSuccess] = useState(false);
+  const dispatch = useDispatch();
+  const { requests, dummyTrainingRequest, topics } = useSelector(
+    (state) => state.trainingRequests
+  );
 
-  const topics = [
-    'React Development',
-    'Node.js',
-    'Python Programming',
-    'Data Science',
-    'Machine Learning',
-    'Cloud Computing',
-    'DevOps',
-    'UI/UX Design',
-    'Project Management',
-    'Other',
-  ];
+  const [formData, setFormData] = useState(dummyTrainingRequest);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -51,165 +21,172 @@ const SubmitRequest = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you would typically send the data to your backend
-    console.log('Training request submitted:', formData);
+    if (!formData.topic || !formData.objective) {
+      alert('Please fill in required fields.');
+      return;
+    }
+    dispatch(addRequest(formData));
     setShowSuccess(true);
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setShowSuccess(false);
-      setFormData({
-        topic: '',
-        customTopic: '',
-        objective: '',
-        priority: 'Medium',
-        preferredDate: '',
-        participants: '',
-      });
-    }, 3000);
+    setTimeout(() => setShowSuccess(false), 3000);
+    setFormData(dummyTrainingRequest);
+  };
+
+  const handleReset = () => setFormData(dummyTrainingRequest);
+
+  const handleDelete = (id) => {
+    dispatch(deleteRequest(id));
   };
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Submit Training Request
-      </Typography>
+    <div className="container py-5">
+      <div className="card shadow p-4 mb-5">
+        <h2 className="text-center mb-4 fw-bold">Submit Training Request</h2>
 
-      {showSuccess && (
-        <Alert severity="success" sx={{ mb: 3 }}>
-          Training request submitted successfully! You will receive a confirmation email shortly.
-        </Alert>
-      )}
+        {showSuccess && (
+          <div className="alert alert-success" role="alert">
+            Training request submitted successfully!
+          </div>
+        )}
 
-      <Card>
-        <CardContent>
-          <Box component="form" onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Training Topic</InputLabel>
-                  <Select
-                    name="topic"
-                    value={formData.topic}
-                    onChange={handleChange}
-                    required
-                  >
-                    {topics.map((topic) => (
-                      <MenuItem key={topic} value={topic}>
-                        {topic}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+        <form onSubmit={handleSubmit}>
+          <div className="row g-3">
+            {/* Topic */}
+            <div className="col-md-6">
+              <label className="form-label">Training Topic *</label>
+              <select
+                className="form-select"
+                name="topic"
+                value={formData.topic}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Topic</option>
+                {topics.map((topic) => (
+                  <option key={topic} value={topic}>
+                    {topic}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-              {formData.topic === 'Other' && (
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Custom Topic"
-                    name="customTopic"
-                    value={formData.customTopic}
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
-              )}
-
-              <Grid item xs={12} md={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Priority</InputLabel>
-                  <Select
-                    name="priority"
-                    value={formData.priority}
-                    onChange={handleChange}
-                  >
-                    <MenuItem value="Low">
-                      <Chip label="Low" color="success" size="small" sx={{ mr: 1 }} />
-                      Low Priority
-                    </MenuItem>
-                    <MenuItem value="Medium">
-                      <Chip label="Medium" color="warning" size="small" sx={{ mr: 1 }} />
-                      Medium Priority
-                    </MenuItem>
-                    <MenuItem value="High">
-                      <Chip label="High" color="error" size="small" sx={{ mr: 1 }} />
-                      High Priority
-                    </MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Preferred Date"
-                  name="preferredDate"
-                  type="date"
-                  value={formData.preferredDate}
+            {formData.topic === 'Other' && (
+              <div className="col-md-6">
+                <label className="form-label">Custom Topic *</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="customTopic"
+                  value={formData.customTopic}
                   onChange={handleChange}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Expected Participants"
-                  name="participants"
-                  type="number"
-                  value={formData.participants}
-                  onChange={handleChange}
-                  helperText="Number of people who will attend"
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Training Objective"
-                  name="objective"
-                  multiline
-                  rows={4}
-                  value={formData.objective}
-                  onChange={handleChange}
-                  placeholder="Please describe what you want to achieve from this training, specific topics to cover, and any other relevant details..."
                   required
                 />
-              </Grid>
+              </div>
+            )}
 
-              <Grid item xs={12}>
-                <Box display="flex" justifyContent="flex-end" gap={2}>
-                  <Button
-                    type="button"
-                    variant="outlined"
-                    onClick={() => setFormData({
-                      topic: '',
-                      customTopic: '',
-                      objective: '',
-                      priority: 'Medium',
-                      preferredDate: '',
-                      participants: '',
-                    })}
-                  >
-                    Reset
-                  </Button>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    startIcon={<Send />}
-                  >
-                    Submit Request
-                  </Button>
-                </Box>
-              </Grid>
-            </Grid>
-          </Box>
-        </CardContent>
-      </Card>
-    </Box>
+            {/* Priority */}
+            <div className="col-md-6">
+              <label className="form-label">Priority</label>
+              <select
+                className="form-select"
+                name="priority"
+                value={formData.priority}
+                onChange={handleChange}
+              >
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+
+            {/* Preferred Date */}
+            <div className="col-md-6">
+              <label className="form-label">Preferred Date</label>
+              <input
+                type="date"
+                className="form-control"
+                name="preferredDate"
+                value={formData.preferredDate}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* Objective */}
+            <div className="col-12">
+              <label className="form-label">Training Objective *</label>
+              <textarea
+                className="form-control"
+                rows="4"
+                name="objective"
+                value={formData.objective}
+                onChange={handleChange}
+                placeholder="Describe the objective..."
+                required
+              ></textarea>
+            </div>
+
+            {/* Buttons */}
+            <div className="col-12 d-flex justify-content-end gap-2">
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={handleReset}
+              >
+                Reset
+              </button>
+              <button type="submit" className="btn btn-primary">
+                Submit Request
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      {/* Submitted Requests Table */}
+      <div className="card shadow p-4">
+        <h4 className="mb-3 fw-bold">Submitted Training Requests</h4>
+        {requests.length === 0 ? (
+          <p>No data found.</p>
+        ) : (
+          <div className="table-responsive">
+            <table className="table table-bordered table-striped">
+              <thead className="table-light">
+                <tr>
+                  <th>Topic</th>
+                  <th>Custom Topic</th>
+                  <th>Priority</th>
+                  <th>Preferred Date</th>
+                  <th>Objective</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {requests.map((req) => (
+                  <tr key={req.id}>
+                    <td>{req.topic}</td>
+                    <td>{req.customTopic || '-'}</td>
+                    <td>{req.priority}</td>
+                    <td>{req.preferredDate}</td>
+                    <td>{req.objective}</td>
+                    <td>
+                      <span className="badge bg-info">{req.status}</span>
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-sm btn-danger"
+                        onClick={() => handleDelete(req.id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
