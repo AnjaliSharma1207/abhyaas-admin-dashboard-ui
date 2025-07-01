@@ -20,7 +20,8 @@ import {
   Logout,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../../store/slices/authSlice';
 
 export const drawerWidth = 260;
 
@@ -45,6 +46,7 @@ const menuConfig = {
 };
 
 const Sidebar = ({ open, onClose, variant, drawerWidth: propDrawerWidth = drawerWidth }) => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useSelector((state) => state.auth);
@@ -57,6 +59,12 @@ const Sidebar = ({ open, onClose, variant, drawerWidth: propDrawerWidth = drawer
   };
 
   const activeTab = location.state?.tab || 'dashboard';
+
+  const handleLogout = () => {
+    localStorage.clear();
+    dispatch(logout());
+    navigate('/login');
+  };
 
   return (
     <Drawer
@@ -158,6 +166,7 @@ const Sidebar = ({ open, onClose, variant, drawerWidth: propDrawerWidth = drawer
                 backgroundColor: 'rgba(244, 67, 54, 0.15)',
               },
             }}
+            onClick={handleLogout}
           >
             <ListItemIcon sx={{ minWidth: 36, color: '#d32f2f' }}>
               <Logout />
